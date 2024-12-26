@@ -1,0 +1,8 @@
+{
+    "cmake.configureOnOpen": false,
+    "C_Cpp.intelliSenseEngine": "default",
+    "files.associations": {
+        "*.tcc": "cpp",
+        "ostream": "cpp"
+    }
+}
