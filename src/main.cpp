@@ -4,6 +4,7 @@
 #include "lorahelper.h"
 #include "ledhelper.h"
 #include "serialhelper.h"
+#include "sensorhelper.h"
 #include "main.h"
 #include "config.h"
 #include "version.h"
@@ -62,11 +63,6 @@ void setup()
   pinMode(WB_IO2, OUTPUT);
   digitalWrite(WB_IO2, HIGH);
   delay(100);
-
-  // Setup/start the wire that we use for the Sensor.
-  Wire.begin();
-
-
 
 #ifndef LORAWAN_FAKE
   // Lora stuff
@@ -203,24 +199,51 @@ void doPeriodicUpdate()
 
   // powersave has a few modes. We use INVALID for managing the power via IO2.
   // We set it HIGH ALWAYS here because you might have come out of a other mode.
-  // IO2 is the power to the GPS, so that basically turns it on/off when we need it.
+  // IO2 is the power to the sensors, so that basically turns it on/off when we need it.
   digitalWrite(WB_IO2, HIGH);
 
-  //TODO: implement code to 
-  
-
   uint16_t vbat_mv = BatteryHelper::readVBAT();
+  int depthInMM = SensorHelper::GetDepthInMiliMeters();
 
   // Create the lora message
   memset(g_SendLoraData.buffer, 0, LORAWAN_BUFFER_SIZE);
   int size = 0;
   g_SendLoraData.port = 2;
-  //TODO!!
-  g_SendLoraData.buffer[size++] = 0x03;
-    g_SendLoraData.buffer[size++] = 0x06;
-
+  g_SendLoraData.buffer[size++] = 0x06;
+  g_SendLoraData.buffer[size++] = 0x08;
   g_SendLoraData.buffer[size++] = vbat_mv >> 8;
   g_SendLoraData.buffer[size++] = vbat_mv;
+
+  if (depthInMM > 0)
+  {
+    // Distance
+    g_SendLoraData.buffer[size++] = depthInMM >> 8;
+    g_SendLoraData.buffer[size++] = depthInMM;
+
+    // Percentage
+    uint16_t tankDepth = g_configParams.GetTankDepth();
+    int depthInCM = depthInMM/10;
+    if (depthInCM < tankDepth)
+    {
+      auto remaining = tankDepth - depthInCM;
+      auto percentage = ((float)remaining / (float)tankDepth) * 100.0f;
+      uint8_t percentageResult = static_cast<uint8_t>(percentage);
+      g_SendLoraData.buffer[size++] = percentageResult;
+      
+    }
+    else
+    {
+      g_SendLoraData.buffer[size++] = 0xFE;
+    }
+  }
+  else
+  {
+    // Distance
+    g_SendLoraData.buffer[size++] = 0;
+    g_SendLoraData.buffer[size++] = 0;
+    // Percentage
+    g_SendLoraData.buffer[size++] = 0xFF;
+  }
 
   g_SendLoraData.buffer[size++] = g_msgcount >> 8;
   g_SendLoraData.buffer[size++] = g_msgcount;
