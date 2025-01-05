@@ -22,6 +22,7 @@ int SensorHelper::GetDepthInMiliMeters()
   delayMicroseconds(12);  // pull high time need over 10us
   digitalWrite(WB_I2C1_SCL, LOW);
   unsigned long respondTime = pulseIn(WB_I2C1_SDA, HIGH);  // microseconds
+  SERIAL_LOG("Response time from RAK12500: %u", respondTime);
 
   if((respondTime > 0) && (respondTime < 24125))  // SDA pin max timeout is 33000us according it's datasheet
   {

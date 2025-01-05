@@ -202,9 +202,9 @@ bool ConfigHelper::InitConfig()
 
     // This commented bit of code can be used to override (/hardcode) some of the values. This makes sure that even
     // if you had this in the config, you'd overwrite it to the default value.
-    // ConfigurationParameters defaults;
-    // memcpy(configvalues._loraDevEUI, defaults._loraDevEUI, 8);
-    // memcpy(configvalues._loraNodeAppKey, defaults._loraNodeAppKey, 16);
-    // SaveConfig();
+    //ConfigurationParameters defaults;
+    //memcpy(configvalues._loraDevEUI, defaults._loraDevEUI, 8);
+    //memcpy(configvalues._loraNodeAppKey, defaults._loraNodeAppKey, 16);
+    //SaveConfig();
     return true;
 }

@@ -204,6 +204,7 @@ void doPeriodicUpdate()
 
   uint16_t vbat_mv = BatteryHelper::readVBAT();
   int depthInMM = SensorHelper::GetDepthInMiliMeters();
+  SERIAL_LOG("vbat: %u; DepthInMM: %d", vbat_mv, depthInMM);
 
   // Create the lora message
   memset(g_SendLoraData.buffer, 0, LORAWAN_BUFFER_SIZE);
@@ -214,22 +215,23 @@ void doPeriodicUpdate()
   g_SendLoraData.buffer[size++] = vbat_mv >> 8;
   g_SendLoraData.buffer[size++] = vbat_mv;
 
+  // Distance
+  g_SendLoraData.buffer[size++] = depthInMM >> 8;
+  g_SendLoraData.buffer[size++] = depthInMM;
+
+  // Percentage
   if (depthInMM > 0)
   {
-    // Distance
-    g_SendLoraData.buffer[size++] = depthInMM >> 8;
-    g_SendLoraData.buffer[size++] = depthInMM;
-
-    // Percentage
     uint16_t tankDepth = g_configParams.GetTankDepth();
-    int depthInCM = depthInMM/10;
-    if (depthInCM < tankDepth)
+    int depthInCM = depthInMM / 10;
+    if (depthInCM <= tankDepth)
     {
       auto remaining = tankDepth - depthInCM;
+      SERIAL_LOG("Depth of tank: %u", tankDepth);
       auto percentage = ((float)remaining / (float)tankDepth) * 100.0f;
       uint8_t percentageResult = static_cast<uint8_t>(percentage);
       g_SendLoraData.buffer[size++] = percentageResult;
-      
+      SERIAL_LOG("Calculated percentage: %u", percentageResult);
     }
     else
     {
@@ -238,9 +240,6 @@ void doPeriodicUpdate()
   }
   else
   {
-    // Distance
-    g_SendLoraData.buffer[size++] = 0;
-    g_SendLoraData.buffer[size++] = 0;
     // Percentage
     g_SendLoraData.buffer[size++] = 0xFF;
   }
