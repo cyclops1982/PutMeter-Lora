@@ -11,6 +11,7 @@ enum ConfigType
 {
     SleepTime0 = 0x10,
     TankDepth = 0x20,
+    TankOffset = 0x21,
     LORA_TXPower = 0x40,
     LORA_DataRate = 0x41,
     LORA_ADREnabled = 0x42,
@@ -40,6 +41,7 @@ struct ConfigurationParameters
     // Config settings
     uint16_t _sleeptime0 = 300; // in seconds
     uint16_t _tankDepth = 200;  // in CM
+    uint16_t _tankOffset = 10;  // in CM
 
     void *_dummy;
 
@@ -66,6 +68,7 @@ class ConfigHelper
 public:
     uint32_t GetSleepTime0InSeconds() { return configvalues._sleeptime0; }
     uint16_t GetTankDepth() { return configvalues._tankDepth; }
+    uint16_t GetTankOffset() { return configvalues._tankOffset; }
     uint8_t GetLoraTXPower() { return configvalues._loraTXPower; }
     uint8_t GetLoraDataRate() { return configvalues._loraDataRate; }
     bool GetLoraADREnabled() { return configvalues._loraADREnabled; }
@@ -96,9 +99,10 @@ private:
 
     ConfigurationParameters configvalues;
 
-    ConfigOption configs[11] = {
+    ConfigOption configs[12] = {
         {"Sleep time between readings", ConfigType::SleepTime0, sizeof(ConfigurationParameters::_sleeptime0), &configvalues._sleeptime0, ConfigurationParameters::SetUint16},
         {"Tank depth", ConfigType::TankDepth, sizeof(ConfigurationParameters::_tankDepth), &configvalues._tankDepth, ConfigurationParameters::SetUint16},
+        {"Tank Offset (distance of fluid from top when fully filled)", ConfigType::TankOffset, sizeof(ConfigurationParameters::_tankOffset), &configvalues._tankOffset, ConfigurationParameters::SetUint16},
         {"LoraWAN - TX Power", ConfigType::LORA_TXPower, sizeof(ConfigurationParameters::_loraTXPower), &configvalues._loraTXPower, ConfigurationParameters::SetInt8},
         {"LoraWAN - DataRate", ConfigType::LORA_DataRate, sizeof(ConfigurationParameters::_loraDataRate), &configvalues._loraDataRate, ConfigurationParameters::SetInt8},
         {"LoraWAN - ADR Enabled", ConfigType::LORA_ADREnabled, sizeof(ConfigurationParameters::_loraADREnabled), &configvalues._loraADREnabled, ConfigurationParameters::SetBool},
