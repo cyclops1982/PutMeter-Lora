@@ -1,11 +1,47 @@
 #pragma once
-#include "serialhelper.h"
+#include <Arduino.h>
+#include <LittleFS.h>
+#include <Wire.h>
 
-#define SEN_VL53L0X 1
-#define SEN_RAK12500 2
+#include <list>
 
-#define SENSOR_TYPE SEN_RAK12500
+#include "logger.h"
+#include "vl53l4cx_class.h"
+
 class SensorHelper {
+ private:
+  static const char caliberationfilename[];
+  static void PrintCalData();
+  static bool LoadCalData();
+  static bool StoreCalData();
+  static const char* ErrorToString(VL53L4CX_Error error);
+  static bool Init();
+  static bool initialized;
+
  public:
-  static int GetDepthInMiliMeters();
+  struct MeasuredObject {
+    ushort MeasurementNr;
+    ushort ObjectNr;
+    uint DistanceInMM;
+    const char* StatusText;
+    short StatusCode;
+    uint32_t Signal;
+    uint32_t Ambient;
+  };
+  struct MeasurementResult {
+    ushort NrOfMeasurements;
+    ushort NrOfMeasurementsUsed;
+    ushort PercentageFilled;
+    uint DistanceInMM;
+    const char* StatusText;
+    short StatusCode;
+    bool SuccesfulMeasurement;
+    std::list<MeasuredObject> MeasuredObjects;
+  };
+
+  static bool RemoveCalib();
+  static bool PerformCaliberation1();
+  static bool PerformCaliberation2(int distanceInMM);
+  static bool PerformCaliberation3();
+  static MeasurementResult PerformMeasurement(uint offset, uint maxdepth);
 };
