@@ -1,39 +1,48 @@
 #pragma once
 #include <Arduino.h>
-#include <LittleFS.h>
+#include <Adafruit_LittleFS.h>
+#include <InternalFileSystem.h>
 #include <Wire.h>
-
 #include <list>
-
-#include "logger.h"
+#include "serialhelper.h"
 #include "vl53l4cx_class.h"
+using namespace Adafruit_LittleFS_Namespace;
 
-class SensorHelper {
- private:
+#define SDA 21
+#define SCL 22
+#define XSHUT 23
+
+
+class SensorHelper
+{
+private:
   static const char caliberationfilename[];
   static void PrintCalData();
   static bool LoadCalData();
   static bool StoreCalData();
-  static const char* ErrorToString(VL53L4CX_Error error);
+  static const char *ErrorToString(VL53L4CX_Error error);
   static bool Init();
   static bool initialized;
 
- public:
-  struct MeasuredObject {
+
+public:
+  struct MeasuredObject
+  {
     ushort MeasurementNr;
     ushort ObjectNr;
     uint DistanceInMM;
-    const char* StatusText;
+    const char *StatusText;
     short StatusCode;
     uint32_t Signal;
     uint32_t Ambient;
   };
-  struct MeasurementResult {
+  struct MeasurementResult
+  {
     ushort NrOfMeasurements;
     ushort NrOfMeasurementsUsed;
     ushort PercentageFilled;
     uint DistanceInMM;
-    const char* StatusText;
+    const char *StatusText;
     short StatusCode;
     bool SuccesfulMeasurement;
     std::list<MeasuredObject> MeasuredObjects;
