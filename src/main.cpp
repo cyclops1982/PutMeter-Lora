@@ -178,6 +178,22 @@ void handleReceivedMessage()
           SERIAL_LOG("Setting Lora TX Power to %d", g_configParams.GetLoraTXPower());
           LoraHelper::SetTXPower(g_configParams.GetLoraTXPower());
           break;
+        case ConfigType::RemoveCalData:
+          SERIAL_LOG("Removing caliberation data as per request.");
+          SensorHelper::RemoveCalib();
+          break;
+        case ConfigType::Caliberate1:
+          SERIAL_LOG("Starting caliberation step 1 as per request.");
+          SensorHelper::PerformCaliberation1();
+          break;
+        case ConfigType::Caliberate2:
+          SERIAL_LOG("Starting caliberation step 2 as per request.");
+          SensorHelper::PerformCaliberation2(600); // 1 meter
+          break;
+        case ConfigType::Caliberate3:
+          SERIAL_LOG("Starting caliberation step 3 as per request.");
+          SensorHelper::PerformCaliberation3();
+          break;
         }
         i += conf.sizeOfOption; // jump to the next one
         break;
@@ -246,11 +262,6 @@ void doPeriodicUpdate()
   SendData();
 
   g_msgcount++;
-  if (g_EventType == EventType::LoraDataReceived) // check if we received some data, and if so, fire things off
-  {
-    SERIAL_LOG("Running handleReceivedMesage from DoPeriodicUpdate()");
-    handleReceivedMessage();
-  }
 };
 
 void loop()

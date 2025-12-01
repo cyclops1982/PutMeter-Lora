@@ -18,9 +18,14 @@ enum ConfigType
     LORA_RequireConfirmation = 0x43,
     LORA_DevEUI = 0x48,
     LORA_NodeAppKey = 0x49,
+    RemoveCalData = 0xE0,
+    Caliberate1 = 0xE1,
+    Caliberate2 = 0xE2,
+    Caliberate3 = 0xE3,
     Restart = 0xF0,
     ClearConfig = 0xF1,
     SaveConfig = 0xF2
+
 };
 
 struct ConfigOption
@@ -99,7 +104,7 @@ private:
 
     ConfigurationParameters configvalues;
 
-    ConfigOption configs[12] = {
+    ConfigOption configs[16] = {
         {"Sleep time between readings", ConfigType::SleepTime0, sizeof(ConfigurationParameters::_sleeptime0), &configvalues._sleeptime0, ConfigurationParameters::SetUint16},
         {"Tank depth", ConfigType::TankDepth, sizeof(ConfigurationParameters::_tankDepth), &configvalues._tankDepth, ConfigurationParameters::SetUint16},
         {"Tank Offset (distance of fluid from top when fully filled)", ConfigType::TankOffset, sizeof(ConfigurationParameters::_tankOffset), &configvalues._tankOffset, ConfigurationParameters::SetUint16},
@@ -109,6 +114,10 @@ private:
         {"LoraWAN - Require confirmation message", ConfigType::LORA_RequireConfirmation, sizeof(ConfigurationParameters::_loraRequireConfirmation), &configvalues._loraRequireConfirmation, ConfigurationParameters::SetBool},
         {"LoraWAN - Dev EUI", ConfigType::LORA_DevEUI, sizeof(ConfigurationParameters::_loraDevEUI), &configvalues._loraDevEUI, ConfigurationParameters::SetUint8x8},
         {"LoraWAN - Node App key", ConfigType::LORA_NodeAppKey, sizeof(ConfigurationParameters::_loraNodeAppKey), &configvalues._loraNodeAppKey, ConfigurationParameters::SetUint8x16},
+        {"Remove Caliberation Data", ConfigType::RemoveCalData, sizeof(ConfigurationParameters::_dummy), &configvalues._dummy, ConfigurationParameters::DoNothing},
+        {"Caliberate Step 1", ConfigType::Caliberate1, sizeof(ConfigurationParameters::_dummy), &configvalues._dummy, ConfigurationParameters::DoNothing},
+        {"Caliberate Step 2", ConfigType::Caliberate2, sizeof(ConfigurationParameters::_dummy), &configvalues._dummy, ConfigurationParameters::DoNothing},
+        {"Caliberate Step 3", ConfigType::Caliberate3, sizeof(ConfigurationParameters::_dummy), &configvalues._dummy, ConfigurationParameters::DoNothing},
         {"Restart Device", ConfigType::Restart, sizeof(ConfigurationParameters::_dummy), &configvalues._dummy, ConfigurationParameters::Restart},
         {"Clear Config", ConfigType::ClearConfig, sizeof(ConfigurationParameters::_dummy), &configvalues._dummy, ConfigurationParameters::DoNothing},
         {"Save Config", ConfigType::SaveConfig, sizeof(ConfigurationParameters::_dummy), &configvalues._dummy, ConfigurationParameters::DoNothing}};
