@@ -52,5 +52,5 @@ public:
   static bool PerformCaliberation1();
   static bool PerformCaliberation2(int distanceInMM);
   static bool PerformCaliberation3();
-  static MeasurementResult PerformMeasurement(uint offset, uint maxdepth);
+  static MeasurementResult PerformMeasurement(uint offsetInMM, uint maxdepthInMM, uint ignoreMeasurementBelowInMM);
 };

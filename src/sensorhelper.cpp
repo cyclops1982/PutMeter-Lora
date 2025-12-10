@@ -145,7 +145,7 @@ const char *SensorHelper::ErrorToString(VL53L4CX_Error error)
   }
 }
 
-SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM, uint maxdepthInMM)
+SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM, uint maxdepthInMM, uint ignoreMeasurementBelowInMM)
 {
   MeasurementResult result;
   result.SuccesfulMeasurement = false;
@@ -280,7 +280,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
       SERIAL_LOG("  %d: Signal=%f Mcps;Ambient=%f Mcps ", j, (float)pMultiRangingData->RangeData[j].SignalRateRtnMegaCps / 65536.0,
                  (float)pMultiRangingData->RangeData[j].AmbientRateRtnMegaCps / 65536.0);
       // Check if the range is valid and above 10mm
-      if (pMultiRangingData->RangeData[j].RangeStatus == VL53L4CX_RANGESTATUS_RANGE_VALID && pMultiRangingData->RangeData[j].RangeMilliMeter > 10)
+      if (pMultiRangingData->RangeData[j].RangeStatus == VL53L4CX_RANGESTATUS_RANGE_VALID && pMultiRangingData->RangeData[j].RangeMilliMeter >= ignoreMeasurementBelowInMM)
       {
         result.NrOfMeasurementsUsed++;
         distance += pMultiRangingData->RangeData[j].RangeMilliMeter;
