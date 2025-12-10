@@ -207,14 +207,11 @@ void doPeriodicUpdate()
 {
   SERIAL_LOG("doPeriodicUpdate()");
 
-  // powersave has a few modes. We use INVALID for managing the power via IO2.
-  // We set it HIGH ALWAYS here because you might have come out of a other mode.
-  // IO2 is the power to the sensors, so that basically turns it on/off when we need it.
-  digitalWrite(WB_IO2, HIGH);
 
   uint16_t vbat_mv = BatteryHelper::readVBAT();
-  SensorHelper::MeasurementResult measurementResult = SensorHelper::PerformMeasurement(0, 10000);
+  SensorHelper::MeasurementResult measurementResult = SensorHelper::PerformMeasurement(g_configParams.GetTankOffset(), g_configParams.GetTankDepth(), g_configParams.GetIgnoreMeasurementsBelow());
   int depthInMM = measurementResult.DistanceInMM;
+  SERIAL_LOG("Result: %d", measurementResult.StatusCode)
   SERIAL_LOG("vbat: %u; DepthInMM: %d", vbat_mv, depthInMM);
 
   // Create the lora message
