@@ -8,9 +8,9 @@
 #include "vl53l4cx_class.h"
 using namespace Adafruit_LittleFS_Namespace;
 
-#define SDA 21
-#define SCL 22
-#define XSHUT 23
+#define SDA WB_I2C1_SDA
+#define SCL WB_I2C1_SCL
+#define XSHUT PIN_SERIAL2_RX
 
 
 class SensorHelper
