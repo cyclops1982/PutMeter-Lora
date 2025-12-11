@@ -147,6 +147,7 @@ const char *SensorHelper::ErrorToString(VL53L4CX_Error error)
 
 SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM, uint maxdepthInMM, uint ignoreMeasurementBelowInMM)
 {
+  SERIAL_LOG("PerformMeasurement(offset=%d, maxdepth=%d, ignoreBelow=%d)", offsetInMM, maxdepthInMM, ignoreMeasurementBelowInMM);
   MeasurementResult result;
   result.SuccesfulMeasurement = false;
 

@@ -48,7 +48,7 @@ struct ConfigurationParameters
     uint16_t _sleeptime0 = 300; // in seconds
     uint16_t _tankDepth = 2000;  // in MM
     uint16_t _tankOffset = 100;  // in MM
-    uint8_t _ignoreMeasurementsBelow = 5; // in MM
+    uint8_t _ignoreMeasurementsBelow = 10; // in MM
 
     void *_dummy;
 
