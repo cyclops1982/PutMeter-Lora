@@ -9,22 +9,30 @@
 #include "config.h"
 #include "version.h"
 
+
 ConfigHelper g_configParams;
 SoftwareTimer g_taskWakeupTimer;
+SoftwareTimer g_taskClear1stMotionInterruptTimer;
+SoftwareTimer g_taskClear2ndMotionInterruptTimer;
 uint16_t g_msgcount = 0;
 
-SemaphoreHandle_t g_taskEvent = NULL;
+SemaphoreHandle_t g_semaphore = NULL;
+BaseType_t g_taskHighPrio = pdTRUE;
 EventType g_EventType = EventType::None;
+
 uint8_t g_rcvdLoRaData[LORAWAN_BUFFER_SIZE];
 uint8_t g_rcvdDataLen = 0;
 bool g_lorawan_joined = false;
-bool g_lorawan_msgconfirmed = false;
+
+bool g_do1stMotionUpdate = true;
+bool g_do2ndMotionUpdate = true;
+
+
 
 void periodicWakeup(TimerHandle_t unused)
 {
-  // Give the semaphore, so the loop task will wake up
-  g_EventType = EventType::Timer;
-  xSemaphoreGiveFromISR(g_taskEvent, pdFALSE);
+  g_EventType |= EventType::Timer;
+  xSemaphoreGiveFromISR(g_semaphore, &g_taskHighPrio);
 }
 
 void setup()
@@ -50,19 +58,16 @@ void setup()
 #endif
   SERIAL_LOG("Setup start.");
   SERIAL_LOG("Starting %s", VERSIONSTRING)
+  delay(500);
+  g_semaphore = xSemaphoreCreateBinary();
+
+  LedHelper::init();
 
   if (!g_configParams.InitConfig())
   {
     LedHelper::BlinkHalt(2);
   }
   delay(1000);
-  // Create semaphore for task handling.
-  g_taskEvent = xSemaphoreCreateBinary();
-
-  // Turn on power to sensors
-  pinMode(WB_IO2, OUTPUT);
-  digitalWrite(WB_IO2, HIGH);
-  delay(100);
 
 #ifndef LORAWAN_FAKE
   // Lora stuff
@@ -71,8 +76,8 @@ void setup()
 #endif
 
   // Go into sleep mode
-  xSemaphoreGive(g_taskEvent);
   g_EventType = EventType::Timer;
+  xSemaphoreGive(g_semaphore);
   g_taskWakeupTimer.begin(g_configParams.GetSleepTime0InSeconds() * 1000, periodicWakeup);
   g_taskWakeupTimer.start();
 }
@@ -88,46 +93,35 @@ bool SendData()
   }
   if (g_lorawan_joined)
   {
-
-    g_lorawan_msgconfirmed = false; // gets set in lorahelper.cpp
     lmh_confirm needConfirm = (lmh_confirm)g_configParams.GetLoraRequireConfirmation();
     for (ushort attempt = 0; attempt < 5; attempt++)
     {
       lmh_error_status loraSendState = lmh_send(&g_SendLoraData, needConfirm);
       SERIAL_LOG("lmh_send result: %d; Confirmation needed?: %d", loraSendState, needConfirm);
-      if (loraSendState == LMH_SUCCESS) // this status just means that we could send. As in, it's not busy or an error. It does not mean that the CONFIRMATION worked.
+      // lmh_send can return LMH_SUCCESS, LMH_BUSY or LMH_ERROR
+      if (loraSendState == LMH_ERROR)
       {
-        if (needConfirm == LMH_CONFIRMED_MSG)
-        {
-          for (ushort confirmationCount = 0; confirmationCount < 5; confirmationCount++)
-          {
-            int totalDelay = 1000 * std::pow(2, confirmationCount);
-            SERIAL_LOG("Exponential waiting for confirmation: %d", totalDelay);
-            delay(totalDelay);
-            SERIAL_LOG("msg_confirmred?: %d", g_lorawan_msgconfirmed);
-            if (g_lorawan_msgconfirmed == true)
-            {
-              break;
-            }
-          }
-          return g_lorawan_msgconfirmed;
-        }
-        return true;
+        SERIAL_LOG("Failed to LMH_SEND due to LMH_ERROR");
+        LedHelper::BlinkStatus(5);
       }
-      else
+      if (loraSendState == LMH_BUSY)
       {
-        int totalDelay = 2000 * std::pow(2, attempt);
-        SERIAL_LOG("Exponential waiting for lora to send: %d", totalDelay)
+        LedHelper::BlinkStatus(3);
+
+        int totalDelay = 1000 * std::pow(2, attempt);
+        SERIAL_LOG("Exponential waiting for confirmation: %d", totalDelay);
         delay(totalDelay);
       }
+      if (loraSendState == LMH_SUCCESS)
+      {
+        SERIAL_LOG("LMH_SEND succeeded");
+        return true;
+      }
     }
-    LedHelper::BlinkStatus(3);
+
     return false;
   }
-  else
-  {
-    SERIAL_LOG("SKIPPING SEND - We are not joined to a network");
-  }
+  SERIAL_LOG("SKIPPING SEND - We are not joined to a network");
   return false;
 #else
   SERIAL_LOG("NOT SENDING lorawan packages as we have LORAWAN_FAKE set. Data that would be send:");
@@ -184,6 +178,22 @@ void handleReceivedMessage()
           SERIAL_LOG("Setting Lora TX Power to %d", g_configParams.GetLoraTXPower());
           LoraHelper::SetTXPower(g_configParams.GetLoraTXPower());
           break;
+        case ConfigType::RemoveCalData:
+          SERIAL_LOG("Removing caliberation data as per request.");
+          SensorHelper::RemoveCalib();
+          break;
+        case ConfigType::Caliberate1:
+          SERIAL_LOG("Starting caliberation step 1 as per request.");
+          SensorHelper::PerformCaliberation1();
+          break;
+        case ConfigType::Caliberate2:
+          SERIAL_LOG("Starting caliberation step 2 as per request.");
+          SensorHelper::PerformCaliberation2(600); // 1 meter
+          break;
+        case ConfigType::Caliberate3:
+          SERIAL_LOG("Starting caliberation step 3 as per request.");
+          SensorHelper::PerformCaliberation3();
+          break;
         }
         i += conf.sizeOfOption; // jump to the next one
         break;
@@ -197,13 +207,11 @@ void doPeriodicUpdate()
 {
   SERIAL_LOG("doPeriodicUpdate()");
 
-  // powersave has a few modes. We use INVALID for managing the power via IO2.
-  // We set it HIGH ALWAYS here because you might have come out of a other mode.
-  // IO2 is the power to the sensors, so that basically turns it on/off when we need it.
-  digitalWrite(WB_IO2, HIGH);
 
   uint16_t vbat_mv = BatteryHelper::readVBAT();
-  int depthInMM = SensorHelper::GetDepthInMiliMeters();
+  SensorHelper::MeasurementResult measurementResult = SensorHelper::PerformMeasurement(g_configParams.GetTankOffset(), g_configParams.GetTankDepth(), g_configParams.GetIgnoreMeasurementsBelow());
+  int depthInMM = measurementResult.DistanceInMM;
+  SERIAL_LOG("Result: %d", measurementResult.StatusCode)
   SERIAL_LOG("vbat: %u; DepthInMM: %d", vbat_mv, depthInMM);
 
   // Create the lora message
@@ -251,40 +259,29 @@ void doPeriodicUpdate()
   SendData();
 
   g_msgcount++;
-  if (g_EventType == EventType::LoraDataReceived) // check if we received some data, and if so, fire things off
-  {
-    SERIAL_LOG("Running handleReceivedMesage from DoPeriodicUpdate()");
-    handleReceivedMessage();
-  }
 };
 
 void loop()
 {
-  SERIAL_LOG("LOOP()");
-  if (xSemaphoreTake(g_taskEvent, portMAX_DELAY) == pdTRUE)
+  SERIAL_LOG("loop() - waiting for semaphore");
+  xSemaphoreTake(g_semaphore, portMAX_DELAY);
+#ifndef MAX_SAVE
+  digitalWrite(LED_GREEN, HIGH); // indicate we're doing stuff
+#endif
+  SERIAL_LOG("Semaphore taken with eventype: %d", g_EventType);
+
+  if ((g_EventType & EventType::LoraDataReceived) == EventType::LoraDataReceived)
   {
-    SERIAL_LOG("Running loop for EventType: %d", g_EventType);
-
-#ifndef MAX_SAVE
-    digitalWrite(LED_GREEN, HIGH); // indicate we're doing stuff
-#endif
-    switch (g_EventType)
-    {
-    case EventType::LoraDataReceived:
-      handleReceivedMessage();
-      break;
-    case EventType::Timer:
-      doPeriodicUpdate();
-      break;
-    case EventType::None:
-    default:
-      SERIAL_LOG("In loop, but without correct g_EventType")
-      break;
-    };
-
-#ifndef MAX_SAVE
-    digitalWrite(LED_GREEN, LOW);
-#endif
+    handleReceivedMessage();
+    g_EventType &= ~EventType::LoraDataReceived;
   }
-  xSemaphoreTake(g_taskEvent, 10);
+  if ((g_EventType & EventType::Timer) == EventType::Timer)
+  {
+    doPeriodicUpdate();
+    g_EventType &= ~EventType::Timer;
+  }
+
+#ifndef MAX_SAVE
+  digitalWrite(LED_GREEN, LOW);
+#endif
 }
