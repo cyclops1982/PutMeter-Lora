@@ -5,6 +5,65 @@ bool SensorHelper::initialized = false;
 
 const char SensorHelper::caliberationfilename[] = "VL53L4CX_CALIBERATION_DATA.BIN";
 
+const char *SensorHelper::RangeStatusToString(uint8_t status)
+{
+
+  switch (status)
+  {
+  case 0:
+    return "VL53L4CX_RANGESTATUS_RANGE_VALID";
+    break;
+  case 1:
+    return "VL53L4CX_RANGESTATUS_SIGMA_FAIL";
+    break;
+  case 2:
+    return "VL53L4CX_RANGESTATUS_SIGNAL_FAIL";
+    break;
+  case 3:
+    return "VL53L4CX_RANGESTATUS_RANGE_VALID_MIN_RANGE_CLIPPED";
+    break;
+  case 4:
+    return "VL53L4CX_RANGESTATUS_OUTOFBOUNDS_FAIL";
+    break;
+  case 5:
+    return "VL53L4CX_RANGESTATUS_HARDWARE_FAIL";
+    break;
+  case 6:
+    return "VL53L4CX_RANGESTATUS_RANGE_VALID_NO_WRAP_CHECK_FAIL";
+    break;
+  case 7:
+    return "VL53L4CX_RANGESTATUS_WRAP_TARGET_FAIL";
+    break;
+  case 8:
+    return "VL53L4CX_RANGESTATUS_PROCESSING_FAIL";
+    break;
+  case 9:
+    return "VL53L4CX_RANGESTATUS_XTALK_SIGNAL_FAIL";
+    break;
+  case 10:
+    return "VL53L4CX_RANGESTATUS_SYNCRONISATION_INT";
+    break;
+  case 11:
+    return "VL53L4CX_RANGESTATUS_RANGE_VALID_MERGED_PULSE";
+    break;
+  case 12:
+    return "VL53L4CX_RANGESTATUS_TARGET_PRESENT_LACK_OF_SIGNAL";
+    break;
+  case 13:
+    return "VL53L4CX_RANGESTATUS_MIN_RANGE_FAIL";
+    break;
+  case 14:
+    return "VL53L4CX_RANGESTATUS_RANGE_INVALID";
+    break;
+  case 255:
+    return "VL53L4CX_RANGESTATUS_NONE";
+    break;
+  default:
+    return "UNKNOWN";
+    break;
+  }
+}
+
 const char *SensorHelper::ErrorToString(VL53L4CX_Error error)
 {
   switch (error)
@@ -165,7 +224,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
   {
     File file(InternalFS);
     file.open(caliberationfilename, FILE_O_READ);
-    //TODO: error handling 
+    // TODO: error handling
     VL53L4CX_CalibrationData_t calData;
     file.readBytes((char *)&calData, sizeof(calData));
     file.close();
@@ -258,7 +317,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
       delay(100);
     } while (!NewDataReady);
 
-    SERIAL_LOG("%d: Status of data: %d; NewData: %u", result.NrOfMeasurements, status, NewDataReady);
+    SERIAL_LOG("%d: Out of Loop: Status of data: %d; NewData: %u", result.NrOfMeasurements, status, NewDataReady);
 
     status = sensor_vl53l4cx_sat.VL53L4CX_GetMultiRangingData(pMultiRangingData);
     if (status != VL53L4CX_ERROR_NONE)
@@ -276,13 +335,14 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
     }
     for (int j = 0; j < pMultiRangingData->NumberOfObjectsFound; j++)
     {
-      SERIAL_LOG("  %d: status=%s; Distance: %dmm", j, SensorHelper::ErrorToString(pMultiRangingData->RangeData[j].RangeStatus),
+      SERIAL_LOG("  %d: status=%s; Distance: %dmm", j, SensorHelper::RangeStatusToString(pMultiRangingData->RangeData[j].RangeStatus),
                  pMultiRangingData->RangeData[j].RangeMilliMeter);
       SERIAL_LOG("  %d: Signal=%f Mcps;Ambient=%f Mcps ", j, (float)pMultiRangingData->RangeData[j].SignalRateRtnMegaCps / 65536.0,
                  (float)pMultiRangingData->RangeData[j].AmbientRateRtnMegaCps / 65536.0);
       // Check if the range is valid and above 10mm
       if (pMultiRangingData->RangeData[j].RangeStatus == VL53L4CX_RANGESTATUS_RANGE_VALID && pMultiRangingData->RangeData[j].RangeMilliMeter >= ignoreMeasurementBelowInMM)
       {
+        SERIAL_LOG("  == ABOVE MEASUREMENT ADDED TO AVERAGE");
         result.NrOfMeasurementsUsed++;
         distance += pMultiRangingData->RangeData[j].RangeMilliMeter;
       }
@@ -334,12 +394,16 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
   }
   else
   {
-    auto totalheight = maxdepthInMM - offsetInMM;
+    uint totalheight = maxdepthInMM - offsetInMM;
     uint remaining = maxdepthInMM - result.DistanceInMM;
-    result.PercentageFilled = (remaining / totalheight) * 100;
+    SERIAL_LOG("distance=%d; offset=%d; maxdepth=%d", result.DistanceInMM, offsetInMM, maxdepthInMM);
+    SERIAL_LOG("totalheight=%d; remaining = %d", totalheight, remaining);
+    float division = static_cast<float>(remaining) / static_cast<float>(totalheight);
+    result.PercentageFilled = static_cast<unsigned short>(division * 100);
+    SERIAL_LOG("calc percent filled: %f / %d", division, result.PercentageFilled);
   }
 
-  SERIAL_LOG("RESULT = %d", result.DistanceInMM);
+  SERIAL_LOG("RESULT = %dmm / %d percent", result.DistanceInMM, result.PercentageFilled);
   return result;
 }
 

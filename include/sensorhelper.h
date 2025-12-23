@@ -21,6 +21,7 @@ private:
   static bool LoadCalData();
   static bool StoreCalData();
   static const char *ErrorToString(VL53L4CX_Error error);
+  static const char *RangeStatusToString(uint8_t status);
   static bool Init();
   static bool initialized;
 
