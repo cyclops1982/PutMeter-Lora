@@ -353,7 +353,6 @@ bool SensorHelper::Init()
 
     Wire.setPins(SDA, SCL);
     Wire.begin();
-    
 
     delay(100);
     int res = sensor_vl53l4cx_sat.begin();

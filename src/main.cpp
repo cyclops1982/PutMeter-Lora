@@ -9,7 +9,6 @@
 #include "config.h"
 #include "version.h"
 
-
 ConfigHelper g_configParams;
 SoftwareTimer g_taskWakeupTimer;
 SoftwareTimer g_taskClear1stMotionInterruptTimer;
@@ -26,8 +25,6 @@ bool g_lorawan_joined = false;
 
 bool g_do1stMotionUpdate = true;
 bool g_do2ndMotionUpdate = true;
-
-
 
 void periodicWakeup(TimerHandle_t unused)
 {
@@ -206,58 +203,90 @@ void handleReceivedMessage()
 void doPeriodicUpdate()
 {
   SERIAL_LOG("doPeriodicUpdate()");
-
-
   uint16_t vbat_mv = BatteryHelper::readVBAT();
   SensorHelper::MeasurementResult measurementResult = SensorHelper::PerformMeasurement(g_configParams.GetTankOffset(), g_configParams.GetTankDepth(), g_configParams.GetIgnoreMeasurementsBelow());
-  int depthInMM = measurementResult.DistanceInMM;
-  SERIAL_LOG("Result: %d", measurementResult.StatusCode)
-  SERIAL_LOG("vbat: %u; DepthInMM: %d", vbat_mv, depthInMM);
 
-  // Create the lora message
+  SERIAL_LOG("Result: %d", measurementResult.StatusCode)
+  SERIAL_LOG("vbat: %u; DepthInMM: %d", vbat_mv, measurementResult.DistanceInMM);
+  SERIAL_LOG("Sending message of type: %d", g_configParams.GetMessageTypeToSend());
+
   memset(g_SendLoraData.buffer, 0, LORAWAN_BUFFER_SIZE);
   int size = 0;
   g_SendLoraData.port = 2;
-  g_SendLoraData.buffer[size++] = 0x06;
-  g_SendLoraData.buffer[size++] = 0x08;
-  g_SendLoraData.buffer[size++] = vbat_mv >> 8;
-  g_SendLoraData.buffer[size++] = vbat_mv;
 
-  // Distance
-  g_SendLoraData.buffer[size++] = depthInMM >> 8;
-  g_SendLoraData.buffer[size++] = depthInMM;
+  if (g_configParams.GetMessageTypeToSend() == 0)
+  {
+    g_SendLoraData.buffer[size++] = 0x06;
+    g_SendLoraData.buffer[size++] = 0x08;
+    g_SendLoraData.buffer[size++] = vbat_mv >> 8;
+    g_SendLoraData.buffer[size++] = vbat_mv;
 
-  // Percentage
-  if (depthInMM > 0)
-  {
-    uint16_t tankDepth = g_configParams.GetTankDepth();
-    int depthInCM = depthInMM / 10;
-    if (depthInCM <= tankDepth)
-    {
-      auto remaining = tankDepth - depthInCM;
-      SERIAL_LOG("Depth of tank: %u", tankDepth);
-      auto percentage = ((float)remaining / (float)tankDepth) * 100.0f;
-      uint8_t percentageResult = static_cast<uint8_t>(percentage);
-      g_SendLoraData.buffer[size++] = percentageResult;
-      SERIAL_LOG("Calculated percentage: %u", percentageResult);
-    }
-    else
-    {
-      g_SendLoraData.buffer[size++] = 0xFE;
-    }
-  }
-  else
-  {
+    // Distance
+    int depthInMM = measurementResult.DistanceInMM;
+    g_SendLoraData.buffer[size++] = depthInMM >> 8;
+    g_SendLoraData.buffer[size++] = depthInMM;
+
     // Percentage
-    g_SendLoraData.buffer[size++] = 0xFF;
+    g_SendLoraData.buffer[size++] = measurementResult.PercentageFilled;
+    // msg count
+    g_SendLoraData.buffer[size++] = g_msgcount >> 8;
+    g_SendLoraData.buffer[size++] = g_msgcount;
   }
+  else if (g_configParams.GetMessageTypeToSend() == 1)
+  {
+    g_SendLoraData.buffer[size++] = 0x06;
+    g_SendLoraData.buffer[size++] = 0x09;
+    g_SendLoraData.buffer[size++] = vbat_mv >> 8;
+    g_SendLoraData.buffer[size++] = vbat_mv;
 
-  g_SendLoraData.buffer[size++] = g_msgcount >> 8;
-  g_SendLoraData.buffer[size++] = g_msgcount;
+    // Distance
+    g_SendLoraData.buffer[size++] = measurementResult.DistanceInMM >> 8;
+    g_SendLoraData.buffer[size++] = measurementResult.DistanceInMM;
+
+    // Percentage
+    g_SendLoraData.buffer[size++] = measurementResult.PercentageFilled;
+
+    // Status
+    g_SendLoraData.buffer[size++] = measurementResult.StatusCode;
+
+    // msg count
+    g_SendLoraData.buffer[size++] = g_msgcount >> 8;
+    g_SendLoraData.buffer[size++] = g_msgcount;
+  }
+  else if (g_configParams.GetMessageTypeToSend() == 2)
+  {
+    g_SendLoraData.buffer[size++] = 0x06;
+    g_SendLoraData.buffer[size++] = 0x10;
+    g_SendLoraData.buffer[size++] = vbat_mv >> 8;
+    g_SendLoraData.buffer[size++] = vbat_mv;
+
+    // Distance
+    g_SendLoraData.buffer[size++] = measurementResult.DistanceInMM >> 8;
+    g_SendLoraData.buffer[size++] = measurementResult.DistanceInMM;
+
+    // Percentage
+    g_SendLoraData.buffer[size++] = measurementResult.PercentageFilled;
+
+    // Status
+    g_SendLoraData.buffer[size++] = measurementResult.StatusCode;
+
+    // msg count
+    g_SendLoraData.buffer[size++] = g_msgcount >> 8;
+    g_SendLoraData.buffer[size++] = g_msgcount;
+
+    for (auto const &measuredObject : measurementResult.MeasuredObjects)
+    {
+      g_SendLoraData.buffer[size++] = measuredObject.MeasurementNr;
+      g_SendLoraData.buffer[size++] = measuredObject.ObjectNr;
+      g_SendLoraData.buffer[size++] = measuredObject.DistanceInMM >> 8;
+      g_SendLoraData.buffer[size++] = measuredObject.DistanceInMM;
+      g_SendLoraData.buffer[size++] = measuredObject.StatusCode;
+    }
+  }
 
   g_SendLoraData.buffsize = size;
-  SendData();
 
+  SendData();
   g_msgcount++;
 };
 

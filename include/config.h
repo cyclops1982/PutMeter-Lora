@@ -13,6 +13,7 @@ enum ConfigType
     TankDepth = 0x20,
     TankOffset = 0x21,
     IgnoreMeasurementsBelow = 0x22,
+    MessageTypeToSend = 0x30,
     LORA_TXPower = 0x40,
     LORA_DataRate = 0x41,
     LORA_ADREnabled = 0x42,
@@ -47,8 +48,9 @@ struct ConfigurationParameters
     // Config settings
     uint16_t _sleeptime0 = 300; // in seconds
     uint16_t _tankDepth = 2000;  // in MM
-    uint16_t _tankOffset = 100;  // in MM
+    uint16_t _tankOffset = 0;  // in MM
     uint8_t _ignoreMeasurementsBelow = 10; // in MM
+    uint8_t _meassageTypeToSend = 0;
 
     void *_dummy;
 
@@ -84,6 +86,7 @@ public:
     uint8_t *GetLoraAppKey() { return configvalues._loraNodeAppKey; }
     bool GetLoraRequireConfirmation() { return configvalues._loraRequireConfirmation; }
     uint8_t GetIgnoreMeasurementsBelow() { return configvalues._ignoreMeasurementsBelow; }
+    uint8_t GetMessageTypeToSend() { return configvalues._meassageTypeToSend; }
 
     ConfigOption *GetConfigs(size_t *size);
     void SetConfig(uint8_t *arr, uint8_t length);
@@ -107,11 +110,12 @@ private:
 
     ConfigurationParameters configvalues;
 
-    ConfigOption configs[17] = {
+    ConfigOption configs[18] = {
         {"Sleep time between readings", ConfigType::SleepTime0, sizeof(ConfigurationParameters::_sleeptime0), &configvalues._sleeptime0, ConfigurationParameters::SetUint16},
         {"Tank depth in MM", ConfigType::TankDepth, sizeof(ConfigurationParameters::_tankDepth), &configvalues._tankDepth, ConfigurationParameters::SetUint16},
         {"Tank Offset in MM (distance of fluid from top when fully filled)", ConfigType::TankOffset, sizeof(ConfigurationParameters::_tankOffset), &configvalues._tankOffset, ConfigurationParameters::SetUint16},
         {"Ignore measurements below (in MM)", ConfigType::IgnoreMeasurementsBelow, sizeof(ConfigurationParameters::_ignoreMeasurementsBelow), &configvalues._ignoreMeasurementsBelow, ConfigurationParameters::SetUint8},
+        {"Message Type to send", ConfigType::MessageTypeToSend, sizeof(ConfigurationParameters::_meassageTypeToSend), &configvalues._meassageTypeToSend, ConfigurationParameters::SetUint8},
         {"LoraWAN - TX Power", ConfigType::LORA_TXPower, sizeof(ConfigurationParameters::_loraTXPower), &configvalues._loraTXPower, ConfigurationParameters::SetInt8},
         {"LoraWAN - DataRate", ConfigType::LORA_DataRate, sizeof(ConfigurationParameters::_loraDataRate), &configvalues._loraDataRate, ConfigurationParameters::SetInt8},
         {"LoraWAN - ADR Enabled", ConfigType::LORA_ADREnabled, sizeof(ConfigurationParameters::_loraADREnabled), &configvalues._loraADREnabled, ConfigurationParameters::SetBool},
