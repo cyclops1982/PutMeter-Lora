@@ -336,7 +336,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
       if (dataready > 50)
       {
         result.StatusText = "Timeout waiting for data ready";
-        result.StatusCode = -14;
+        result.StatusCode = -23;
         return result;
       }
     } while (!NewDataReady);
