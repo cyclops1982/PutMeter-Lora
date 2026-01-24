@@ -296,6 +296,7 @@ void doPeriodicUpdate()
 
   SendData();
   g_msgcount++;
+  SERIAL_LOG("--------------- doPeriodicUpdate() done ----------- MSGCOUNT: %d", g_msgcount);
 };
 
 void loop()

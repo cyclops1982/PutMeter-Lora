@@ -17,12 +17,14 @@ class SensorHelper
 {
 private:
   static const char caliberationfilename[];
-  static void PrintCalData();
+  static const char *old_calibration_filenames[];
+  
   static bool LoadCalData();
   static bool StoreCalData();
   static const char *ErrorToString(VL53L4CX_Error error);
   static const char *RangeStatusToString(uint8_t status);
-  static bool Init();
+  static bool init();
+  static bool end();
   static bool initialized;
 
 
@@ -45,7 +47,6 @@ public:
     uint DistanceInMM;
     const char *StatusText;
     short StatusCode;
-    bool SuccesfulMeasurement;
     std::list<MeasuredObject> MeasuredObjects;
   };
 

@@ -104,15 +104,16 @@ private:
         In short: we will never really write 'upgrade code' to move from V1 to V2.  It is however practical to have the filename different,
         as we can then change that to ignore the 'old' settings.
         */
-    const char *CONFIG_NAME = "config_w1.bin";
-    const char *OLD_CONFIG_NAMES[1] = {
-        "config_w0.bin"};
+    const char *CONFIG_NAME = "config_w2.bin";
+    const char *OLD_CONFIG_NAMES[2] = {
+        "config_w0.bin",
+        "config_w1.bin"};
     bool SaveConfig();
     void ResetConfig();
 
     ConfigurationParameters configvalues;
 
-    ConfigOption configs[18] = {
+    ConfigOption configs[20] = {
         {"Sleep time between readings", ConfigType::SleepTime0, sizeof(ConfigurationParameters::_sleeptime0), &configvalues._sleeptime0, ConfigurationParameters::SetUint16},
         {"Tank depth in MM", ConfigType::TankDepth, sizeof(ConfigurationParameters::_tankDepth), &configvalues._tankDepth, ConfigurationParameters::SetUint16},
         {"Tank Offset in MM (distance of fluid from top when fully filled)", ConfigType::TankOffset, sizeof(ConfigurationParameters::_tankOffset), &configvalues._tankOffset, ConfigurationParameters::SetUint16},
