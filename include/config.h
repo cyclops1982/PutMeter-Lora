@@ -48,9 +48,9 @@ struct ConfigurationParameters
     uint8_t _loraNodeAppKey[16] = {0xef, 0xc0, 0x0d, 0x41, 0xcc, 0x3c, 0x67, 0x56, 0xca, 0x77, 0xdd, 0xb4, 0x19, 0xf8, 0x35, 0xe8};
 
     // Config settings
-    uint16_t _sleeptime0 = 300; // in seconds
-    uint16_t _tankDepth = 2000;  // in MM
-    uint16_t _tankOffset = 0;  // in MM
+    uint16_t _sleeptime0 = 300;            // in seconds
+    uint16_t _tankDepth = 2000;            // in MM
+    uint16_t _tankOffset = 0;              // in MM
     uint8_t _ignoreMeasurementsBelow = 10; // in MM
     uint8_t _meassageTypeToSend = 0;
 
