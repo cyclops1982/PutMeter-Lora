@@ -1,3 +1,6 @@
 [submodule "lib/VL53L4CX"]
 	path = lib/VL53L4CX
 	url = https://github.com/stm32duino/VL53L4CX
+[submodule "lib/VL53L1"]
+	path = lib/VL53L1
+	url = https://github.com/stm32duino/VL53L1.git
