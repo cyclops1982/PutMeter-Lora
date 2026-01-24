@@ -521,60 +521,147 @@ bool SensorHelper::RemoveCalib()
   return false;
 }
 
-bool SensorHelper::PerformCaliberation1()
+bool SensorHelper::PerformRefSpadCalibration()
 {
   SERIAL_LOG("=== Caliberation 1 - VL53L4CX_PerformRefSpadManagement ===");
 
-  VL53L4CX_Error status;
-  status = sensor_vl53l4cx_sat.VL53L4CX_PerformRefSpadManagement();
-  SERIAL_LOG("VL53L4CX_PerformRefSpadManagement status: %s", SensorHelper::ErrorToString(status));
-
-  SensorHelper::PrintCalData();
-
-  return SensorHelper::StoreCalData();
-}
-
-bool SensorHelper::PerformCaliberation2(int distanceInMM)
-{
-  SERIAL_LOG("=== Caliberation 2 - VL53L4CX_PerformOffsetPerVcselCalibration(%d) ===", distanceInMM);
-
-  if (!SensorHelper::LoadCalData())
+  if (!SensorHelper::init())
   {
-    SERIAL_LOG("PerformCaliberation2() - Failed to SetCalData - make sure you run calibration 1 first.");
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to init sensor.");
     return false;
   }
 
-  VL53L4CX_Error status = sensor_vl53l4cx_sat.VL53L4CX_PerformOffsetPerVcselCalibration(distanceInMM);
-  SERIAL_LOG("PerformCaliberation2() - VL53L4CX_PerformOffsetPerVcselCalibration status: %s", SensorHelper::ErrorToString(status));
+  VL53L4CX_Error status;
+  status = sensor_VL53L4CX_sat.VL53L4CX_PerformRefSpadManagement();
+  SERIAL_LOG("VL53L4CX_PerformRefSpadManagement status: %s", SensorHelper::ErrorToString(status));
 
   SensorHelper::PrintCalData();
 
   if (!SensorHelper::StoreCalData())
   {
-    SERIAL_LOG("PerformCaliberation2() - Failed to store calibration data");
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to store calibration data");
+    return false;
+  }
+
+  if (!SensorHelper::end())
+  {
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to end sensor.");
     return false;
   }
 
   return true;
 }
 
-bool SensorHelper::PerformCaliberation3()
+bool SensorHelper::PerformVCELOffsetCalibration(int distanceInMM)
 {
-  SERIAL_LOG("=== Caliberation 3 - VL53L4CX_PerformXTalkCalibration ===");
-  if (!SensorHelper::LoadCalData())
+  SERIAL_LOG("=== Caliberation 2 - VL53L4CX_PerformOffsetPerVcselCalibration(%d) ===", distanceInMM);
+
+  if (!SensorHelper::init())
   {
-    SERIAL_LOG("PerformCaliberation3() - Failed to SetCalData - make sure you run calibration 1 first.");
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to init sensor.");
     return false;
   }
 
-  VL53L4CX_Error status = sensor_vl53l4cx_sat.VL53L4CX_PerformXTalkCalibration();
-  SERIAL_LOG("PerformCaliberation3() - VL53L4CX_PerformXTalkCalibration status: %s", SensorHelper::ErrorToString(status));
+  if (!SensorHelper::LoadCalData())
+  {
+    SERIAL_LOG("PerformVCELOffsetCalibration() - Failed to SetCalData - make sure you run calibration 1 first.");
+    return false;
+  }
+
+  VL53L4CX_Error status = sensor_VL53L4CX_sat.VL53L4CX_PerformOffsetPerVcselCalibration(distanceInMM);
+  SERIAL_LOG("PerformVCELOffsetCalibration() - VL53L4CX_PerformOffsetPerVcselCalibration status: %s", SensorHelper::ErrorToString(status));
+  if (status != VL53L4CX_ERROR_NONE)
+  {
+    return false;
+  }
 
   SensorHelper::PrintCalData();
 
   if (!SensorHelper::StoreCalData())
   {
-    SERIAL_LOG("PerformCaliberation3() - Failed to store calibration data");
+    SERIAL_LOG("PerformVCELOffsetCalibration() - Failed to store calibration data");
+    return false;
+  }
+
+  if (!SensorHelper::end())
+  {
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to end sensor.");
+    return false;
+  }
+
+  return true;
+}
+
+bool SensorHelper::PerformSimpleOffsetCalibration(int distanceInMM)
+{
+  SERIAL_LOG("=== Caliberation 2 - PerformSimpleOffsetCalibration(%d) ===", distanceInMM);
+
+  if (!SensorHelper::init())
+  {
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to init sensor.");
+    return false;
+  }
+
+  if (!SensorHelper::LoadCalData())
+  {
+    SERIAL_LOG("PerformSimpleOffsetCalibration() - Failed to SetCalData - make sure you run calibration 1 first.");
+    return false;
+  }
+
+  VL53L4CX_Error status = sensor_VL53L4CX_sat.VL53L4CX_PerformOffsetSimpleCalibration(distanceInMM);
+  SERIAL_LOG("PerformSimpleOffsetCalibration() - VL53L4CX_PerformOffsetSimpleCalibration status: %s", SensorHelper::ErrorToString(status));
+  if (status != VL53L4CX_ERROR_NONE)
+  {
+    return false;
+  }
+
+  SensorHelper::PrintCalData();
+
+  if (!SensorHelper::StoreCalData())
+  {
+    SERIAL_LOG("PerformVCELOffsetCalibration() - Failed to store calibration data");
+    return false;
+  }
+
+  if (!SensorHelper::end())
+  {
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to end sensor.");
+    return false;
+  }
+
+  return true;
+}
+
+bool SensorHelper::PerformXtalkCalibration()
+{
+  SERIAL_LOG("=== Caliberation 3 - VL53L4CX_PerformXTalkCalibration ===");
+
+  if (!SensorHelper::init())
+  {
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to init sensor.");
+    return false;
+  }
+
+  if (!SensorHelper::LoadCalData())
+  {
+    SERIAL_LOG("PerformXtalkCalibration() - Failed to SetCalData - make sure you run calibration 1 first.");
+    return false;
+  }
+
+  VL53L4CX_Error status = sensor_VL53L4CX_sat.VL53L4CX_PerformXTalkCalibration();
+  SERIAL_LOG("PerformXtalkCalibration() - VL53L4CX_PerformXTalkCalibration status: %s", SensorHelper::ErrorToString(status));
+
+  SensorHelper::PrintCalData();
+
+  if (!SensorHelper::StoreCalData())
+  {
+    SERIAL_LOG("PerformXtalkCalibration() - Failed to store calibration data");
+    return false;
+  }
+
+  if (!SensorHelper::end())
+  {
+    SERIAL_LOG("PerformRefSpadCalibration() - Failed to end sensor.");
     return false;
   }
 

@@ -50,8 +50,10 @@ public:
   };
 
   static bool RemoveCalib();
-  static bool PerformCaliberation1();
-  static bool PerformCaliberation2(int distanceInMM);
-  static bool PerformCaliberation3();
+  static void PrintCalData();
+  static bool PerformRefSpadCalibration();
+  static bool PerformSimpleOffsetCalibration(int distanceInMM);
+  static bool PerformVCELOffsetCalibration(int distanceInMM);
+  static bool PerformXtalkCalibration();
   static MeasurementResult PerformMeasurement(uint offsetInMM, uint maxdepthInMM, uint ignoreMeasurementBelowInMM);
 };
