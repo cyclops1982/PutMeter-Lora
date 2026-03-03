@@ -38,6 +38,7 @@ public:
     short StatusCode;
     uint32_t Signal;
     uint32_t Ambient;
+    uint8_t HasXtalkValueChanged;
   };
   struct MeasurementResult
   {

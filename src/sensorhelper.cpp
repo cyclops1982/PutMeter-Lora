@@ -4,205 +4,201 @@ VL53L4CX sensor_VL53L4CX_sat(&Wire, XSHUT);
 bool SensorHelper::initialized = false;
 
 const char SensorHelper::caliberationfilename[] = "VL53L4CX_CALIBERATION_DATA.BIN";
-const char *SensorHelper::old_calibration_filenames[1] = {
-    "VL53L4CX_CALIBERATION_DATA.BIN"};
+const char *SensorHelper::old_calibration_filenames[1] = {"VL53L4CX_CALIBERATION_DATA.BIN"};
 
 const char *SensorHelper::RangeStatusToString(uint8_t status)
 {
-
-  switch (status)
-  {
-  case 0:
-    return "VL53L4CX_RANGESTATUS_RANGE_VALID";
-    break;
-  case 1:
-    return "VL53L4CX_RANGESTATUS_SIGMA_FAIL";
-    break;
-  case 2:
-    return "VL53L4CX_RANGESTATUS_SIGNAL_FAIL";
-    break;
-  case 3:
-    return "VL53L4CX_RANGESTATUS_RANGE_VALID_MIN_RANGE_CLIPPED";
-    break;
-  case 4:
-    return "VL53L4CX_RANGESTATUS_OUTOFBOUNDS_FAIL";
-    break;
-  case 5:
-    return "VL53L4CX_RANGESTATUS_HARDWARE_FAIL";
-    break;
-  case 6:
-    return "VL53L4CX_RANGESTATUS_RANGE_VALID_NO_WRAP_CHECK_FAIL";
-    break;
-  case 7:
-    return "VL53L4CX_RANGESTATUS_WRAP_TARGET_FAIL";
-    break;
-  case 8:
-    return "VL53L4CX_RANGESTATUS_PROCESSING_FAIL";
-    break;
-  case 9:
-    return "VL53L4CX_RANGESTATUS_XTALK_SIGNAL_FAIL";
-    break;
-  case 10:
-    return "VL53L4CX_RANGESTATUS_SYNCRONISATION_INT";
-    break;
-  case 11:
-    return "VL53L4CX_RANGESTATUS_RANGE_VALID_MERGED_PULSE";
-    break;
-  case 12:
-    return "VL53L4CX_RANGESTATUS_TARGET_PRESENT_LACK_OF_SIGNAL";
-    break;
-  case 13:
-    return "VL53L4CX_RANGESTATUS_MIN_RANGE_FAIL";
-    break;
-  case 14:
-    return "VL53L4CX_RANGESTATUS_RANGE_INVALID";
-    break;
-  case 255:
-    return "VL53L4CX_RANGESTATUS_NONE";
-    break;
-  default:
-    return "UNKNOWN";
-    break;
+  switch(status) {
+    case 0:
+      return "VL53L4CX_RANGESTATUS_RANGE_VALID";
+      break;
+    case 1:
+      return "VL53L4CX_RANGESTATUS_SIGMA_FAIL";
+      break;
+    case 2:
+      return "VL53L4CX_RANGESTATUS_SIGNAL_FAIL";
+      break;
+    case 3:
+      return "VL53L4CX_RANGESTATUS_RANGE_VALID_MIN_RANGE_CLIPPED";
+      break;
+    case 4:
+      return "VL53L4CX_RANGESTATUS_OUTOFBOUNDS_FAIL";
+      break;
+    case 5:
+      return "VL53L4CX_RANGESTATUS_HARDWARE_FAIL";
+      break;
+    case 6:
+      return "VL53L4CX_RANGESTATUS_RANGE_VALID_NO_WRAP_CHECK_FAIL";
+      break;
+    case 7:
+      return "VL53L4CX_RANGESTATUS_WRAP_TARGET_FAIL";
+      break;
+    case 8:
+      return "VL53L4CX_RANGESTATUS_PROCESSING_FAIL";
+      break;
+    case 9:
+      return "VL53L4CX_RANGESTATUS_XTALK_SIGNAL_FAIL";
+      break;
+    case 10:
+      return "VL53L4CX_RANGESTATUS_SYNCRONISATION_INT";
+      break;
+    case 11:
+      return "VL53L4CX_RANGESTATUS_RANGE_VALID_MERGED_PULSE";
+      break;
+    case 12:
+      return "VL53L4CX_RANGESTATUS_TARGET_PRESENT_LACK_OF_SIGNAL";
+      break;
+    case 13:
+      return "VL53L4CX_RANGESTATUS_MIN_RANGE_FAIL";
+      break;
+    case 14:
+      return "VL53L4CX_RANGESTATUS_RANGE_INVALID";
+      break;
+    case 255:
+      return "VL53L4CX_RANGESTATUS_NONE";
+      break;
+    default:
+      return "UNKNOWN";
+      break;
   }
 }
 
 const char *SensorHelper::ErrorToString(VL53L4CX_Error error)
 {
-  switch (error)
-  {
-  case VL53L4CX_ERROR_NONE:
-    return "VL53L4CX_ERROR_NONE";
-    break;
-  case VL53L4CX_ERROR_CALIBRATION_WARNING:
-    return "VL53L4CX_ERROR_CALIBRATION_WARNING";
-    break;
-  case VL53L4CX_ERROR_MIN_CLIPPED:
-    return "VL53L4CX_ERROR_MIN_CLIPPED";
-    break;
-  case VL53L4CX_ERROR_UNDEFINED:
-    return "VL53L4CX_ERROR_UNDEFINED";
-    break;
-  case VL53L4CX_ERROR_INVALID_PARAMS:
-    return "VL53L4CX_ERROR_INVALID_PARAMS";
-    break;
-  case VL53L4CX_ERROR_NOT_SUPPORTED:
-    return "VL53L4CX_ERROR_NOT_SUPPORTED";
-    break;
-  case VL53L4CX_ERROR_RANGE_ERROR:
-    return "VL53L4CX_ERROR_RANGE_ERROR";
-    break;
-  case VL53L4CX_ERROR_TIME_OUT:
-    return "VL53L4CX_ERROR_TIME_OUT";
-    break;
-  case VL53L4CX_ERROR_MODE_NOT_SUPPORTED:
-    return "VL53L4CX_ERROR_MODE_NOT_SUPPORTED";
-    break;
-  case VL53L4CX_ERROR_BUFFER_TOO_SMALL:
-    return "VL53L4CX_ERROR_BUFFER_TOO_SMALL";
-    break;
-  case VL53L4CX_ERROR_COMMS_BUFFER_TOO_SMALL:
-    return "VL53L4CX_ERROR_COMMS_BUFFER_TOO_SMALL";
-    break;
-  case VL53L4CX_ERROR_GPIO_NOT_EXISTING:
-    return "VL53L4CX_ERROR_GPIO_NOT_EXISTING";
-    break;
-  case VL53L4CX_ERROR_GPIO_FUNCTIONALITY_NOT_SUPPORTED:
-    return "VL53L4CX_ERROR_GPIO_FUNCTIONALITY_NOT_SUPPORTED";
-    break;
-  case VL53L4CX_ERROR_CONTROL_INTERFACE:
-    return "VL53L4CX_ERROR_CONTROL_INTERFACE";
-    break;
-  case VL53L4CX_ERROR_INVALID_COMMAND:
-    return "VL53L4CX_ERROR_INVALID_COMMAND";
-    break;
-  case VL53L4CX_ERROR_DIVISION_BY_ZERO:
-    return "VL53L4CX_ERROR_DIVISION_BY_ZERO";
-    break;
-  case VL53L4CX_ERROR_REF_SPAD_INIT:
-    return "VL53L4CX_ERROR_REF_SPAD_INIT";
-    break;
-  case VL53L4CX_ERROR_GPH_SYNC_CHECK_FAIL:
-    return "VL53L4CX_ERROR_GPH_SYNC_CHECK_FAIL";
-    break;
-  case VL53L4CX_ERROR_STREAM_COUNT_CHECK_FAIL:
-    return "VL53L4CX_ERROR_STREAM_COUNT_CHECK_FAIL";
-    break;
-  case VL53L4CX_ERROR_GPH_ID_CHECK_FAIL:
-    return "VL53L4CX_ERROR_GPH_ID_CHECK_FAIL";
-    break;
-  case VL53L4CX_ERROR_ZONE_STREAM_COUNT_CHECK_FAIL:
-    return "VL53L4CX_ERROR_ZONE_STREAM_COUNT_CHECK_FAIL";
-    break;
-  case VL53L4CX_ERROR_ZONE_GPH_ID_CHECK_FAIL:
-    return "VL53L4CX_ERROR_ZONE_GPH_ID_CHECK_FAIL";
-    break;
-  case VL53L4CX_ERROR_XTALK_EXTRACTION_NO_SAMPLE_FAIL:
-    return "VL53L4CX_ERROR_XTALK_EXTRACTION_NO_SAMPLE_FAIL";
-    break;
-  case VL53L4CX_ERROR_XTALK_EXTRACTION_SIGMA_LIMIT_FAIL:
-    return "VL53L4CX_ERROR_XTALK_EXTRACTION_SIGMA_LIMIT_FAIL";
-    break;
-  case VL53L4CX_ERROR_OFFSET_CAL_NO_SAMPLE_FAIL:
-    return "VL53L4CX_ERROR_OFFSET_CAL_NO_SAMPLE_FAIL";
-    break;
-  case VL53L4CX_ERROR_OFFSET_CAL_NO_SPADS_ENABLED_FAIL:
-    return "VL53L4CX_ERROR_OFFSET_CAL_NO_SPADS_ENABLED_FAIL";
-    break;
-  case VL53L4CX_ERROR_ZONE_CAL_NO_SAMPLE_FAIL:
-    return "VL53L4CX_ERROR_ZONE_CAL_NO_SAMPLE_FAIL";
-    break;
-  case VL53L4CX_ERROR_TUNING_PARM_KEY_MISMATCH:
-    return "VL53L4CX_ERROR_TUNING_PARM_KEY_MISMATCH";
-    break;
-  case VL53L4CX_WARNING_REF_SPAD_CHAR_NOT_ENOUGH_SPADS:
-    return "VL53L4CX_WARNING_REF_SPAD_CHAR_NOT_ENOUGH_SPADS";
-    break;
-  case VL53L4CX_WARNING_REF_SPAD_CHAR_RATE_TOO_HIGH:
-    return "VL53L4CX_WARNING_REF_SPAD_CHAR_RATE_TOO_HIGH";
-    break;
-  case VL53L4CX_WARNING_REF_SPAD_CHAR_RATE_TOO_LOW:
-    return "VL53L4CX_WARNING_REF_SPAD_CHAR_RATE_TOO_LOW";
-    break;
-  case VL53L4CX_WARNING_OFFSET_CAL_MISSING_SAMPLES:
-    return "VL53L4CX_WARNING_OFFSET_CAL_MISSING_SAMPLES";
-    break;
-  case VL53L4CX_WARNING_OFFSET_CAL_SIGMA_TOO_HIGH:
-    return "VL53L4CX_WARNING_OFFSET_CAL_SIGMA_TOO_HIGH";
-    break;
-  case VL53L4CX_WARNING_OFFSET_CAL_RATE_TOO_HIGH:
-    return "VL53L4CX_WARNING_OFFSET_CAL_RATE_TOO_HIGH";
-    break;
-  case VL53L4CX_WARNING_OFFSET_CAL_SPAD_COUNT_TOO_LOW:
-    return "VL53L4CX_WARNING_OFFSET_CAL_SPAD_COUNT_TOO_LOW";
-    break;
-  case VL53L4CX_WARNING_ZONE_CAL_MISSING_SAMPLES:
-    return "VL53L4CX_WARNING_ZONE_CAL_MISSING_SAMPLES";
-    break;
-  case VL53L4CX_WARNING_ZONE_CAL_SIGMA_TOO_HIGH:
-    return "VL53L4CX_WARNING_ZONE_CAL_SIGMA_TOO_HIGH";
-    break;
-  case VL53L4CX_WARNING_ZONE_CAL_RATE_TOO_HIGH:
-    return "VL53L4CX_WARNING_ZONE_CAL_RATE_TOO_HIGH";
-    break;
-  case VL53L4CX_WARNING_XTALK_MISSING_SAMPLES:
-    return "VL53L4CX_WARNING_XTALK_MISSING_SAMPLES";
-    break;
-  case VL53L4CX_WARNING_XTALK_NO_SAMPLES_FOR_GRADIENT:
-    return "VL53L4CX_WARNING_XTALK_NO_SAMPLES_FOR_GRADIENT";
-    break;
-  case VL53L4CX_WARNING_XTALK_SIGMA_LIMIT_FOR_GRADIENT:
-    return "VL53L4CX_WARNING_XTALK_SIGMA_LIMIT_FOR_GRADIENT";
-    break;
-  case VL53L4CX_ERROR_NOT_IMPLEMENTED:
-    return "VL53L4CX_ERROR_NOT_IMPLEMENTED";
-    break;
-  case VL53L4CX_ERROR_PLATFORM_SPECIFIC_START:
-    return "VL53L4CX_ERROR_PLATFORM_SPECIFIC_START";
-    break;
-  default:
-    static char buffer[20];
-    snprintf(buffer, sizeof(buffer), "UNKNOWN: %u", error);
-    return buffer;
+  switch(error) {
+    case VL53L4CX_ERROR_NONE:
+      return "VL53L4CX_ERROR_NONE";
+      break;
+    case VL53L4CX_ERROR_CALIBRATION_WARNING:
+      return "VL53L4CX_ERROR_CALIBRATION_WARNING";
+      break;
+    case VL53L4CX_ERROR_MIN_CLIPPED:
+      return "VL53L4CX_ERROR_MIN_CLIPPED";
+      break;
+    case VL53L4CX_ERROR_UNDEFINED:
+      return "VL53L4CX_ERROR_UNDEFINED";
+      break;
+    case VL53L4CX_ERROR_INVALID_PARAMS:
+      return "VL53L4CX_ERROR_INVALID_PARAMS";
+      break;
+    case VL53L4CX_ERROR_NOT_SUPPORTED:
+      return "VL53L4CX_ERROR_NOT_SUPPORTED";
+      break;
+    case VL53L4CX_ERROR_RANGE_ERROR:
+      return "VL53L4CX_ERROR_RANGE_ERROR";
+      break;
+    case VL53L4CX_ERROR_TIME_OUT:
+      return "VL53L4CX_ERROR_TIME_OUT";
+      break;
+    case VL53L4CX_ERROR_MODE_NOT_SUPPORTED:
+      return "VL53L4CX_ERROR_MODE_NOT_SUPPORTED";
+      break;
+    case VL53L4CX_ERROR_BUFFER_TOO_SMALL:
+      return "VL53L4CX_ERROR_BUFFER_TOO_SMALL";
+      break;
+    case VL53L4CX_ERROR_COMMS_BUFFER_TOO_SMALL:
+      return "VL53L4CX_ERROR_COMMS_BUFFER_TOO_SMALL";
+      break;
+    case VL53L4CX_ERROR_GPIO_NOT_EXISTING:
+      return "VL53L4CX_ERROR_GPIO_NOT_EXISTING";
+      break;
+    case VL53L4CX_ERROR_GPIO_FUNCTIONALITY_NOT_SUPPORTED:
+      return "VL53L4CX_ERROR_GPIO_FUNCTIONALITY_NOT_SUPPORTED";
+      break;
+    case VL53L4CX_ERROR_CONTROL_INTERFACE:
+      return "VL53L4CX_ERROR_CONTROL_INTERFACE";
+      break;
+    case VL53L4CX_ERROR_INVALID_COMMAND:
+      return "VL53L4CX_ERROR_INVALID_COMMAND";
+      break;
+    case VL53L4CX_ERROR_DIVISION_BY_ZERO:
+      return "VL53L4CX_ERROR_DIVISION_BY_ZERO";
+      break;
+    case VL53L4CX_ERROR_REF_SPAD_INIT:
+      return "VL53L4CX_ERROR_REF_SPAD_INIT";
+      break;
+    case VL53L4CX_ERROR_GPH_SYNC_CHECK_FAIL:
+      return "VL53L4CX_ERROR_GPH_SYNC_CHECK_FAIL";
+      break;
+    case VL53L4CX_ERROR_STREAM_COUNT_CHECK_FAIL:
+      return "VL53L4CX_ERROR_STREAM_COUNT_CHECK_FAIL";
+      break;
+    case VL53L4CX_ERROR_GPH_ID_CHECK_FAIL:
+      return "VL53L4CX_ERROR_GPH_ID_CHECK_FAIL";
+      break;
+    case VL53L4CX_ERROR_ZONE_STREAM_COUNT_CHECK_FAIL:
+      return "VL53L4CX_ERROR_ZONE_STREAM_COUNT_CHECK_FAIL";
+      break;
+    case VL53L4CX_ERROR_ZONE_GPH_ID_CHECK_FAIL:
+      return "VL53L4CX_ERROR_ZONE_GPH_ID_CHECK_FAIL";
+      break;
+    case VL53L4CX_ERROR_XTALK_EXTRACTION_NO_SAMPLE_FAIL:
+      return "VL53L4CX_ERROR_XTALK_EXTRACTION_NO_SAMPLE_FAIL";
+      break;
+    case VL53L4CX_ERROR_XTALK_EXTRACTION_SIGMA_LIMIT_FAIL:
+      return "VL53L4CX_ERROR_XTALK_EXTRACTION_SIGMA_LIMIT_FAIL";
+      break;
+    case VL53L4CX_ERROR_OFFSET_CAL_NO_SAMPLE_FAIL:
+      return "VL53L4CX_ERROR_OFFSET_CAL_NO_SAMPLE_FAIL";
+      break;
+    case VL53L4CX_ERROR_OFFSET_CAL_NO_SPADS_ENABLED_FAIL:
+      return "VL53L4CX_ERROR_OFFSET_CAL_NO_SPADS_ENABLED_FAIL";
+      break;
+    case VL53L4CX_ERROR_ZONE_CAL_NO_SAMPLE_FAIL:
+      return "VL53L4CX_ERROR_ZONE_CAL_NO_SAMPLE_FAIL";
+      break;
+    case VL53L4CX_ERROR_TUNING_PARM_KEY_MISMATCH:
+      return "VL53L4CX_ERROR_TUNING_PARM_KEY_MISMATCH";
+      break;
+    case VL53L4CX_WARNING_REF_SPAD_CHAR_NOT_ENOUGH_SPADS:
+      return "VL53L4CX_WARNING_REF_SPAD_CHAR_NOT_ENOUGH_SPADS";
+      break;
+    case VL53L4CX_WARNING_REF_SPAD_CHAR_RATE_TOO_HIGH:
+      return "VL53L4CX_WARNING_REF_SPAD_CHAR_RATE_TOO_HIGH";
+      break;
+    case VL53L4CX_WARNING_REF_SPAD_CHAR_RATE_TOO_LOW:
+      return "VL53L4CX_WARNING_REF_SPAD_CHAR_RATE_TOO_LOW";
+      break;
+    case VL53L4CX_WARNING_OFFSET_CAL_MISSING_SAMPLES:
+      return "VL53L4CX_WARNING_OFFSET_CAL_MISSING_SAMPLES";
+      break;
+    case VL53L4CX_WARNING_OFFSET_CAL_SIGMA_TOO_HIGH:
+      return "VL53L4CX_WARNING_OFFSET_CAL_SIGMA_TOO_HIGH";
+      break;
+    case VL53L4CX_WARNING_OFFSET_CAL_RATE_TOO_HIGH:
+      return "VL53L4CX_WARNING_OFFSET_CAL_RATE_TOO_HIGH";
+      break;
+    case VL53L4CX_WARNING_OFFSET_CAL_SPAD_COUNT_TOO_LOW:
+      return "VL53L4CX_WARNING_OFFSET_CAL_SPAD_COUNT_TOO_LOW";
+      break;
+    case VL53L4CX_WARNING_ZONE_CAL_MISSING_SAMPLES:
+      return "VL53L4CX_WARNING_ZONE_CAL_MISSING_SAMPLES";
+      break;
+    case VL53L4CX_WARNING_ZONE_CAL_SIGMA_TOO_HIGH:
+      return "VL53L4CX_WARNING_ZONE_CAL_SIGMA_TOO_HIGH";
+      break;
+    case VL53L4CX_WARNING_ZONE_CAL_RATE_TOO_HIGH:
+      return "VL53L4CX_WARNING_ZONE_CAL_RATE_TOO_HIGH";
+      break;
+    case VL53L4CX_WARNING_XTALK_MISSING_SAMPLES:
+      return "VL53L4CX_WARNING_XTALK_MISSING_SAMPLES";
+      break;
+    case VL53L4CX_WARNING_XTALK_NO_SAMPLES_FOR_GRADIENT:
+      return "VL53L4CX_WARNING_XTALK_NO_SAMPLES_FOR_GRADIENT";
+      break;
+    case VL53L4CX_WARNING_XTALK_SIGMA_LIMIT_FOR_GRADIENT:
+      return "VL53L4CX_WARNING_XTALK_SIGMA_LIMIT_FOR_GRADIENT";
+      break;
+    case VL53L4CX_ERROR_NOT_IMPLEMENTED:
+      return "VL53L4CX_ERROR_NOT_IMPLEMENTED";
+      break;
+    case VL53L4CX_ERROR_PLATFORM_SPECIFIC_START:
+      return "VL53L4CX_ERROR_PLATFORM_SPECIFIC_START";
+      break;
+    default:
+      static char buffer[20];
+      snprintf(buffer, sizeof(buffer), "UNKNOWN: %u", error);
+      return buffer;
   }
 }
 
@@ -213,16 +209,14 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
   result.StatusCode = 0;
   result.StatusText = "UNKNOWN";
 
-  if (!init())
-  {
+  if(!init()) {
     result.StatusText = "Failed initialization";
     result.StatusCode = -1;
     return result;
   }
 
   VL53L4CX_Error status;
-  if (InternalFS.exists(caliberationfilename))
-  {
+  if(InternalFS.exists(caliberationfilename)) {
     File file(InternalFS);
     file.open(caliberationfilename, FILE_O_READ);
     // TODO: error handling
@@ -232,8 +226,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
     SERIAL_LOG("LOADING CALIBRATION DATA - Read %d bytes...", sizeof(calData));
     status = sensor_VL53L4CX_sat.VL53L4CX_SetCalibrationData(&calData);
     SERIAL_LOG("VL53L4CX_SetCalibrationData status: %s", SensorHelper::ErrorToString(status));
-    if (status != VL53L4CX_ERROR_NONE)
-    {
+    if(status != VL53L4CX_ERROR_NONE) {
       result.StatusText = ErrorToString(status);
       result.StatusCode = -2;
       return result;
@@ -242,8 +235,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
 
   status = sensor_VL53L4CX_sat.VL53L4CX_SetXTalkCompensationEnable(1);
   SERIAL_LOG("VL53L4CX_SetXTalkCompensationEnable status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -3;
     return result;
@@ -251,8 +243,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
 
   status = sensor_VL53L4CX_sat.VL53L4CX_SetMeasurementTimingBudgetMicroSeconds(100000);
   SERIAL_LOG("VL53L4CX_SetMeasurementTimingBudgetMicroSeconds status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -4;
     return result;
@@ -260,8 +251,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
 
   status = sensor_VL53L4CX_sat.VL53L4CX_SetDistanceMode(VL53L4CX_DISTANCEMODE_LONG);
   SERIAL_LOG("VL53L4CX_SetDistanceMode status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -5;
     return result;
@@ -269,8 +259,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
 
   status = sensor_VL53L4CX_sat.VL53L4CX_SetOffsetCorrectionMode(VL53L4CX_OFFSETCORRECTIONMODE_PERVCSEL);
   SERIAL_LOG("VL53L4CX_SetOffsetCorrectionMode status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -6;
     return result;
@@ -278,8 +267,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
 
   status = sensor_VL53L4CX_sat.VL53L4CX_SmudgeCorrectionEnable(VL53L4CX_SMUDGE_CORRECTION_SINGLE);
   SERIAL_LOG("VL53L4CX_SmudgeCorrectionEnable status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -7;
     return result;
@@ -293,8 +281,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
   roi.BotRightX = 10;
   status = sensor_VL53L4CX_sat.VL53L4CX_SetUserROI(&roi);
   SERIAL_LOG("VL53L4CX_SetROI status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -20;
     return result;
@@ -302,8 +289,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
 
   status = sensor_VL53L4CX_sat.VL53L4CX_StartMeasurement();
   SERIAL_LOG("Started measurement status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -8;
     return result;
@@ -318,14 +304,11 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
   result.DistanceInMM = 0;
   int noObjectCount = 0;
   int distance = 0;
-  for (; result.NrOfMeasurements < 5; result.NrOfMeasurements++)
-  {
+  for(; result.NrOfMeasurements < 5; result.NrOfMeasurements++) {
     auto dataready = 0;
-    do
-    {
+    do {
       status = sensor_VL53L4CX_sat.VL53L4CX_GetMeasurementDataReady(&NewDataReady);
-      if (status != VL53L4CX_ERROR_NONE)
-      {
+      if(status != VL53L4CX_ERROR_NONE) {
         result.StatusText = ErrorToString(status);
         result.StatusCode = -9;
         return result;
@@ -333,19 +316,17 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
       SERIAL_LOG("%d: Status of data: %d; NewData: %u", result.NrOfMeasurements, status, NewDataReady);
       delay(100);
       dataready++;
-      if (dataready > 50)
-      {
+      if(dataready > 50) {
         result.StatusText = "Timeout waiting for data ready";
         result.StatusCode = -23;
         return result;
       }
-    } while (!NewDataReady);
+    } while(!NewDataReady);
 
     SERIAL_LOG("%d: Out of Loop: Status of data: %d; NewData: %u", result.NrOfMeasurements, status, NewDataReady);
 
     status = sensor_VL53L4CX_sat.VL53L4CX_GetMultiRangingData(pMultiRangingData);
-    if (status != VL53L4CX_ERROR_NONE)
-    {
+    if(status != VL53L4CX_ERROR_NONE) {
       result.StatusText = ErrorToString(status);
       result.StatusCode = -10;
       return result;
@@ -353,14 +334,12 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
     SERIAL_LOG("%d: Status read: %d/%s", result.NrOfMeasurements, status, SensorHelper::ErrorToString(status));
     SERIAL_LOG("%d: VL53L4CX: Count=%d, #Objs=%1d ", result.NrOfMeasurements, pMultiRangingData->StreamCount,
                pMultiRangingData->NumberOfObjectsFound);
-    SERIAL_LOG("%d:EffectiveSPadRtnCount: %d, nr of objects: %d, HasXtalkValueChanged: %d", result.NrOfMeasurements, pMultiRangingData->EffectiveSpadRtnCount / 256, pMultiRangingData->NumberOfObjectsFound, pMultiRangingData->HasXtalkValueChanged);
-    if (pMultiRangingData->NumberOfObjectsFound == 0)
-    {
+    SERIAL_LOG("%d:EffectiveSPadRtnCount: %d, nr of objects: %d, HasXtalkValueChanged: %d", result.NrOfMeasurements,
+               pMultiRangingData->EffectiveSpadRtnCount / 256, pMultiRangingData->NumberOfObjectsFound, pMultiRangingData->HasXtalkValueChanged);
+    if(pMultiRangingData->NumberOfObjectsFound == 0) {
       noObjectCount++;
     }
-    for (int j = 0; j < pMultiRangingData->NumberOfObjectsFound; j++)
-    {
-
+    for(int j = 0; j < pMultiRangingData->NumberOfObjectsFound; j++) {
       SERIAL_LOG("  %d: status=%s; Distance: %dmm", j, SensorHelper::RangeStatusToString(pMultiRangingData->RangeData[j].RangeStatus),
                  pMultiRangingData->RangeData[j].RangeMilliMeter);
       SERIAL_LOG("  %d: Signal=%f Mcps;Ambient=%f Mcps ", j, (float)pMultiRangingData->RangeData[j].SignalRateRtnMegaCps / 65536.0,
@@ -369,8 +348,8 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
       SERIAL_LOG("  %d: SigmaMM: %f", j, pMultiRangingData->RangeData[j].SigmaMilliMeter / 65536.0);
 
       // Check if the range is valid and above 10mm
-      if (pMultiRangingData->RangeData[j].RangeStatus == VL53L4CX_RANGESTATUS_RANGE_VALID && pMultiRangingData->RangeData[j].RangeMilliMeter >= ignoreMeasurementBelowInMM)
-      {
+      if(pMultiRangingData->RangeData[j].RangeStatus == VL53L4CX_RANGESTATUS_RANGE_VALID &&
+         pMultiRangingData->RangeData[j].RangeMilliMeter >= ignoreMeasurementBelowInMM) {
         SERIAL_LOG("  == ABOVE MEASUREMENT ADDED TO AVERAGE");
         result.NrOfMeasurementsUsed++;
         distance += pMultiRangingData->RangeData[j].RangeMilliMeter;
@@ -384,57 +363,51 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
       obj.StatusCode = pMultiRangingData->RangeData[j].RangeStatus;
       obj.Signal = pMultiRangingData->RangeData[j].SignalRateRtnMegaCps / 65536;
       obj.Ambient = pMultiRangingData->RangeData[j].AmbientRateRtnMegaCps / 65536;
+      obj.HasXtalkValueChanged =pMultiRangingData->HasXtalkValueChanged;
       result.MeasuredObjects.push_back(obj);
     }
     status = sensor_VL53L4CX_sat.VL53L4CX_ClearInterruptAndStartMeasurement();
-    if (status != VL53L4CX_ERROR_NONE)
-    {
+    if(status != VL53L4CX_ERROR_NONE) {
       result.StatusText = ErrorToString(status);
       result.StatusCode = -11;
       return result;
     }
 
     delay(100);
-  } // for i<5;
+  }  // for i<5;
 
   status = sensor_VL53L4CX_sat.VL53L4CX_StopMeasurement();
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -22;
     return result;
   }
 
   // This means we did measurements and in all of them we didn't find any objects
-  if (result.NrOfMeasurements == noObjectCount)
-  {
+  if(result.NrOfMeasurements == noObjectCount) {
     result.StatusText = ErrorToString(status);
     result.StatusCode = -12;
     return result;
   }
 
-  if (result.NrOfMeasurementsUsed == 0)
-  { // We found objects (see previous if statement), but we didn't get any RANGESTATUS_RANGE_VALID
+  if(result.NrOfMeasurementsUsed == 0) {  // We found objects (see previous if statement), but we didn't get any RANGESTATUS_RANGE_VALID
     result.StatusText = ErrorToString(status);
     result.StatusCode = -13;
     return result;
   }
   result.DistanceInMM = (distance / result.NrOfMeasurementsUsed);
 
-  if (result.DistanceInMM >= maxdepthInMM)
-  {
+  if(result.DistanceInMM >= maxdepthInMM) {
     result.PercentageFilled = 0;
     result.StatusCode = 2;
     result.StatusText = "EMPTY";
   }
-  else if (result.DistanceInMM <= offsetInMM)
-  {
+  else if(result.DistanceInMM <= offsetInMM) {
     result.PercentageFilled = 100;
     result.StatusCode = 1;
     result.StatusText = "FULL";
   }
-  else
-  {
+  else {
     uint totalheight = maxdepthInMM - offsetInMM;
     uint remaining = maxdepthInMM - result.DistanceInMM;
     SERIAL_LOG("distance=%d; offset=%d; maxdepth=%d", result.DistanceInMM, offsetInMM, maxdepthInMM);
@@ -453,8 +426,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
 
 bool SensorHelper::init()
 {
-  if (!initialized)
-  {
+  if(!initialized) {
     pinMode(SDA, INPUT);
     pinMode(SCL, OUTPUT);
     delay(200);
@@ -465,16 +437,14 @@ bool SensorHelper::init()
     delay(100);
     int res = sensor_VL53L4CX_sat.begin();
     SERIAL_LOG("sensor_VL53L4CX_sat.begin(): %d", res);
-    if (res != 0)
-    {
+    if(res != 0) {
       return false;
     }
 
     delay(100);
     VL53L4CX_Error status = sensor_VL53L4CX_sat.InitSensor(VL53L4CX_DEFAULT_DEVICE_ADDRESS);
     SERIAL_LOG("InitSensor status: %s", SensorHelper::ErrorToString(status));
-    if (status != VL53L4CX_ERROR_NONE)
-    {
+    if(status != VL53L4CX_ERROR_NONE) {
       return false;
     }
 
@@ -489,8 +459,7 @@ bool SensorHelper::end()
 {
   int res = sensor_VL53L4CX_sat.end();
   SERIAL_LOG("sensor.end(): %d", res);
-  if (res != 0)
-  {
+  if(res != 0) {
     return false;
   }
 
@@ -507,25 +476,20 @@ bool SensorHelper::StoreCalData()
   VL53L4CX_Error status = sensor_VL53L4CX_sat.VL53L4CX_GetCalibrationData(calData);
   SERIAL_LOG("StoreCalData()  - VL53L4CX_GetCalibrationData status: %s", SensorHelper::ErrorToString(status));
 
-  for (auto file : SensorHelper::old_calibration_filenames)
-  {
-    if (InternalFS.exists(file))
-    {
-      if (InternalFS.remove(file))
-      {
+  for(auto file : SensorHelper::old_calibration_filenames) {
+    if(InternalFS.exists(file)) {
+      if(InternalFS.remove(file)) {
         SERIAL_LOG("Removed old config: %s", file);
       }
     }
   }
 
-  if (InternalFS.exists(caliberationfilename))
-  {
+  if(InternalFS.exists(caliberationfilename)) {
     SERIAL_LOG("StoreCalData() - Existing caliberation file exists, removing!");
     InternalFS.remove(caliberationfilename);
   }
   File file = InternalFS.open(caliberationfilename, FILE_O_WRITE);
-  if (!file)
-  {
+  if(!file) {
     SERIAL_LOG("StoreCalData() - FAILED TO OPEN FILE!: %d", file);
     return false;
   }
@@ -539,17 +503,16 @@ bool SensorHelper::StoreCalData()
 bool SensorHelper::LoadCalData()
 {
   File file = InternalFS.open(caliberationfilename, FILE_O_READ);
-  if (file)
-  {
+  if(file) {
     VL53L4CX_CalibrationData_t calData;
     file.readBytes((char *)&calData, sizeof(calData));
-    SERIAL_LOG("SetCalData() - Read %d bytes...", sizeof(calData));
+    SERIAL_LOG("LoadCalData() - Read %d bytes...", sizeof(calData));
     VL53L4CX_Error status = sensor_VL53L4CX_sat.VL53L4CX_SetCalibrationData(&calData);
-    SERIAL_LOG("SetCalData() - VL53L4CX_SetCalibrationData status: %s", SensorHelper::ErrorToString(status));
+    SERIAL_LOG("LoadCalData() - VL53L4CX_SetCalibrationData status: %s", SensorHelper::ErrorToString(status));
     file.close();
     return true;
   }
-  SERIAL_LOG("SetCalData() - failed, couldn't get file.");
+  SERIAL_LOG("LoadCalData() - failed, couldn't get file.");
   return false;
 }
 
@@ -583,8 +546,7 @@ void SensorHelper::PrintCalData()
 
 bool SensorHelper::RemoveCalib()
 {
-  if (InternalFS.exists(caliberationfilename))
-  {
+  if(InternalFS.exists(caliberationfilename)) {
     SERIAL_LOG("Existing caliberation file exists, removing!");
     InternalFS.remove(caliberationfilename);
     return true;
@@ -596,8 +558,7 @@ bool SensorHelper::PerformRefSpadCalibration()
 {
   SERIAL_LOG("=== Caliberation 1 - VL53L4CX_PerformRefSpadManagement ===");
 
-  if (!SensorHelper::init())
-  {
+  if(!SensorHelper::init()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to init sensor.");
     return false;
   }
@@ -608,14 +569,12 @@ bool SensorHelper::PerformRefSpadCalibration()
 
   SensorHelper::PrintCalData();
 
-  if (!SensorHelper::StoreCalData())
-  {
+  if(!SensorHelper::StoreCalData()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to store calibration data");
     return false;
   }
 
-  if (!SensorHelper::end())
-  {
+  if(!SensorHelper::end()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to end sensor.");
     return false;
   }
@@ -627,35 +586,30 @@ bool SensorHelper::PerformVCELOffsetCalibration(int distanceInMM)
 {
   SERIAL_LOG("=== Caliberation 2 - VL53L4CX_PerformOffsetPerVcselCalibration(%d) ===", distanceInMM);
 
-  if (!SensorHelper::init())
-  {
+  if(!SensorHelper::init()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to init sensor.");
     return false;
   }
 
-  if (!SensorHelper::LoadCalData())
-  {
+  if(!SensorHelper::LoadCalData()) {
     SERIAL_LOG("PerformVCELOffsetCalibration() - Failed to SetCalData - make sure you run calibration 1 first.");
     return false;
   }
 
   VL53L4CX_Error status = sensor_VL53L4CX_sat.VL53L4CX_PerformOffsetPerVcselCalibration(distanceInMM);
   SERIAL_LOG("PerformVCELOffsetCalibration() - VL53L4CX_PerformOffsetPerVcselCalibration status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     return false;
   }
 
   SensorHelper::PrintCalData();
 
-  if (!SensorHelper::StoreCalData())
-  {
+  if(!SensorHelper::StoreCalData()) {
     SERIAL_LOG("PerformVCELOffsetCalibration() - Failed to store calibration data");
     return false;
   }
 
-  if (!SensorHelper::end())
-  {
+  if(!SensorHelper::end()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to end sensor.");
     return false;
   }
@@ -667,35 +621,30 @@ bool SensorHelper::PerformSimpleOffsetCalibration(int distanceInMM)
 {
   SERIAL_LOG("=== Caliberation 2 - PerformSimpleOffsetCalibration(%d) ===", distanceInMM);
 
-  if (!SensorHelper::init())
-  {
+  if(!SensorHelper::init()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to init sensor.");
     return false;
   }
 
-  if (!SensorHelper::LoadCalData())
-  {
+  if(!SensorHelper::LoadCalData()) {
     SERIAL_LOG("PerformSimpleOffsetCalibration() - Failed to SetCalData - make sure you run calibration 1 first.");
     return false;
   }
 
   VL53L4CX_Error status = sensor_VL53L4CX_sat.VL53L4CX_PerformOffsetSimpleCalibration(distanceInMM);
   SERIAL_LOG("PerformSimpleOffsetCalibration() - VL53L4CX_PerformOffsetSimpleCalibration status: %s", SensorHelper::ErrorToString(status));
-  if (status != VL53L4CX_ERROR_NONE)
-  {
+  if(status != VL53L4CX_ERROR_NONE) {
     return false;
   }
 
   SensorHelper::PrintCalData();
 
-  if (!SensorHelper::StoreCalData())
-  {
+  if(!SensorHelper::StoreCalData()) {
     SERIAL_LOG("PerformVCELOffsetCalibration() - Failed to store calibration data");
     return false;
   }
 
-  if (!SensorHelper::end())
-  {
+  if(!SensorHelper::end()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to end sensor.");
     return false;
   }
@@ -707,14 +656,12 @@ bool SensorHelper::PerformXtalkCalibration()
 {
   SERIAL_LOG("=== Caliberation 3 - VL53L4CX_PerformXTalkCalibration ===");
 
-  if (!SensorHelper::init())
-  {
+  if(!SensorHelper::init()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to init sensor.");
     return false;
   }
 
-  if (!SensorHelper::LoadCalData())
-  {
+  if(!SensorHelper::LoadCalData()) {
     SERIAL_LOG("PerformXtalkCalibration() - Failed to SetCalData - make sure you run calibration 1 first.");
     return false;
   }
@@ -724,14 +671,12 @@ bool SensorHelper::PerformXtalkCalibration()
 
   SensorHelper::PrintCalData();
 
-  if (!SensorHelper::StoreCalData())
-  {
+  if(!SensorHelper::StoreCalData()) {
     SERIAL_LOG("PerformXtalkCalibration() - Failed to store calibration data");
     return false;
   }
 
-  if (!SensorHelper::end())
-  {
+  if(!SensorHelper::end()) {
     SERIAL_LOG("PerformRefSpadCalibration() - Failed to end sensor.");
     return false;
   }

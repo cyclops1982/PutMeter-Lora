@@ -1,2 +1,2 @@
 #pragma once
-#define VERSIONSTRING "v0.95"
+#define VERSIONSTRING "51caa988193d25f0ba4328142c8c7420e4b5540b"

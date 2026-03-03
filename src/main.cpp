@@ -185,7 +185,7 @@ void handleReceivedMessage()
           break;
         case ConfigType::PerformSimpleOffsetCalibration:
           SERIAL_LOG("Starting PerformSimpleOffsetCalibration");
-          SensorHelper::PerformVCELOffsetCalibration(600);
+          SensorHelper::PerformSimpleOffsetCalibration(600);
           break;
         case ConfigType::PerformXtalkCalibration:
           SERIAL_LOG("Starting PerformXtalkCalibration");
