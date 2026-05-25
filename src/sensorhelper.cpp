@@ -363,7 +363,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
       obj.StatusCode = pMultiRangingData->RangeData[j].RangeStatus;
       obj.Signal = pMultiRangingData->RangeData[j].SignalRateRtnMegaCps / 65536;
       obj.Ambient = pMultiRangingData->RangeData[j].AmbientRateRtnMegaCps / 65536;
-      obj.HasXtalkValueChanged =pMultiRangingData->HasXtalkValueChanged;
+      obj.HasXtalkValueChanged = pMultiRangingData->HasXtalkValueChanged;
       result.MeasuredObjects.push_back(obj);
     }
     status = sensor_VL53L4CX_sat.VL53L4CX_ClearInterruptAndStartMeasurement();

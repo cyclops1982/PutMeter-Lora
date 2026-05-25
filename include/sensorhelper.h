@@ -1,9 +1,11 @@
 #pragma once
-#include <Arduino.h>
 #include <Adafruit_LittleFS.h>
+#include <Arduino.h>
 #include <InternalFileSystem.h>
 #include <Wire.h>
+
 #include <list>
+
 #include "serialhelper.h"
 #include "vl53l4cx_class.h"
 using namespace Adafruit_LittleFS_Namespace;
@@ -12,13 +14,11 @@ using namespace Adafruit_LittleFS_Namespace;
 #define SCL WB_I2C1_SCL
 #define XSHUT PIN_SERIAL2_RX
 
-
-class SensorHelper
-{
-private:
+class SensorHelper {
+ private:
   static const char caliberationfilename[];
   static const char *old_calibration_filenames[];
-  
+
   static bool LoadCalData();
   static bool StoreCalData();
   static const char *ErrorToString(VL53L4CX_Error error);
@@ -27,10 +27,8 @@ private:
   static bool end();
   static bool initialized;
 
-
-public:
-  struct MeasuredObject
-  {
+ public:
+  struct MeasuredObject {
     ushort MeasurementNr;
     ushort ObjectNr;
     uint DistanceInMM;
@@ -40,8 +38,7 @@ public:
     uint32_t Ambient;
     uint8_t HasXtalkValueChanged;
   };
-  struct MeasurementResult
-  {
+  struct MeasurementResult {
     ushort NrOfMeasurements;
     ushort NrOfMeasurementsUsed;
     ushort PercentageFilled;
