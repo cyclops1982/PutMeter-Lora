@@ -249,7 +249,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
     return result;
   }
 
-  status = sensor_VL53L4CX_sat.VL53L4CX_SetDistanceMode(VL53L4CX_DISTANCEMODE_LONG);
+  status = sensor_VL53L4CX_sat.VL53L4CX_SetDistanceMode(VL53L4CX_DISTANCEMODE_MEDIUM);
   SERIAL_LOG("VL53L4CX_SetDistanceMode status: %s", SensorHelper::ErrorToString(status));
   if(status != VL53L4CX_ERROR_NONE) {
     result.StatusText = ErrorToString(status);
@@ -304,7 +304,7 @@ SensorHelper::MeasurementResult SensorHelper::PerformMeasurement(uint offsetInMM
   result.DistanceInMM = 0;
   int noObjectCount = 0;
   int distance = 0;
-  for(; result.NrOfMeasurements < 5; result.NrOfMeasurements++) {
+  for(; result.NrOfMeasurements < 10; result.NrOfMeasurements++) {
     auto dataready = 0;
     do {
       status = sensor_VL53L4CX_sat.VL53L4CX_GetMeasurementDataReady(&NewDataReady);
